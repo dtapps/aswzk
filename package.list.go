@@ -11,10 +11,10 @@ type PackageListResponse struct {
 	Code int    `json:"code"`
 	Info string `json:"info"`
 	Data []struct {
-		RechargeMoney        int    `json:"recharge_money"`                   // 充值金额
-		RechargeType         string `json:"recharge_type"`                    // 充值类型
-		RechargeOperatorType string `json:"recharge_operator_type,omitempty"` // 充值运营商类型
-	} `json:"data"`
+		RechargeMoney        float64 `json:"recharge_money"`                   // 充值金额
+		RechargeType         string  `json:"recharge_type"`                    // 充值类型
+		RechargeOperatorType string  `json:"recharge_operator_type,omitempty"` // 充值运营商类型
+	} `json:"data,omitempty"`
 	Time    int    `json:"time"`
 	TraceId string `json:"trace_id"`
 }

@@ -1,5 +1,5 @@
 <h1>
-<a href="https://www.dtapp.net/">Golang aswzk</a>
+<a href="https://www.dtapp.net/">Golang</a>
 </h1>
 
 📦 Golang aswzk
@@ -13,5 +13,5 @@
 #### 安装
 
 ```shell
-go get -v -u go.dtapp.net/aswzk@v1.0.0
+go get -v -u go.dtapp.net/aswzk@v1.0.1
 ```
