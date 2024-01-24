@@ -30,10 +30,10 @@ func newPackageListResult(result PackageListResponse, body []byte, http goreques
 }
 
 // PackageList 套餐列表
-func (c *Client) PackageList(ctx context.Context, packageType string, notMustParams ...gorequest.Params) (*PackageListResult, error) {
+// package_type = 套餐类型 phone_bill=话费 electricity=电费)
+func (c *Client) PackageList(ctx context.Context, notMustParams ...gorequest.Params) (*PackageListResult, error) {
 	// 参数
 	params := gorequest.NewParamsWith(notMustParams...)
-	params.Set("package_type", packageType)
 	// 请求
 	request, err := c.request(ctx, "/package/list", params, http.MethodGet)
 	if err != nil {
