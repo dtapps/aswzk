@@ -26,8 +26,8 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	}
 
 	// 检查密钥
-	if params.ApiKey != c.config.apiKey {
-		return errors.New("api_key is not match")
+	if params.ApiKey == "" {
+		return errors.New("api_key cannot be empty")
 	}
 
 	// 获取时间戳
