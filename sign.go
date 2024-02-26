@@ -9,13 +9,13 @@ import (
 )
 
 // 签名
-func (c *Client) sign(param gorequest.Params, timestamp string) string {
+func sign(param gorequest.Params, apiKey string, timestamp string) string {
 	var keys []string
 	for k := range param {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
-	signStr := fmt.Sprintf("api_key=%s&", c.GetApiKey())
+	signStr := fmt.Sprintf("api_key=%s&", apiKey)
 	for _, key := range keys {
 		signStr += fmt.Sprintf("%s=%s&", key, gostring.ToString(param.Get(key)))
 	}

@@ -11,10 +11,10 @@ import (
 func (c *Client) request(ctx context.Context, url string, param gorequest.Params, method string) (gorequest.Response, error) {
 
 	// 获取时间戳
-	timestamp := fmt.Sprintf("%v", gotime.Current().Timestamp())
+	XTimestamp := fmt.Sprintf("%v", gotime.Current().Timestamp())
 
 	// 签名
-	sign := c.sign(param, timestamp)
+	XSign := sign(param, c.GetApiKey(), XTimestamp)
 
 	// 创建请求
 	client := gorequest.NewHttp()
@@ -33,9 +33,9 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 	client.SetParams(param)
 
 	// 添加请求头
-	client.SetHeader("X-Timestamp", timestamp)
+	client.SetHeader("X-Timestamp", XTimestamp)
 	client.SetHeader("X-UserId", c.GetUserID())
-	client.SetHeader("X-Sign", sign)
+	client.SetHeader("X-Sign", XSign)
 
 	// 发起请求
 	request, err := client.Request(ctx)
