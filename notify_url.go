@@ -71,9 +71,6 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	if c.gormLog.status {
 		go c.gormLog.client.Middleware(ctx, request)
 	}
-	if c.mongoLog.status {
-		go c.mongoLog.client.Middleware(ctx, request)
-	}
 
 	if response.Code == CodeSuccess {
 		return nil

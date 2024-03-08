@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go.dtapp.net/gorequest"
 	"go.dtapp.net/gotime"
+	"log"
 )
 
 // 请求接口
@@ -15,13 +16,15 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 
 	// 签名
 	XSign := sign(param, c.GetApiKey(), XTimestamp)
+	log.Printf("签名参数：%+v\n", param)
 
 	// 创建请求
 	client := gorequest.NewHttp()
-	//client.SetDebug()
+	client.SetDebug()
 
 	// 设置请求地址
 	client.SetUri(c.GetApiUrl() + url)
+	log.Printf("请求地址：%+v\n", c.GetApiUrl()+url)
 
 	// 设置方式
 	client.SetMethod(method)
@@ -46,9 +49,6 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 	// 日志
 	if c.gormLog.status {
 		go c.gormLog.client.Middleware(ctx, request)
-	}
-	if c.mongoLog.status {
-		go c.mongoLog.client.Middleware(ctx, request)
 	}
 
 	return request, err
