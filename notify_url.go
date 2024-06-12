@@ -7,6 +7,7 @@ import (
 	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
 	"go.dtapp.net/gotime"
+	"go.opentelemetry.io/otel/codes"
 	"net/url"
 )
 
@@ -19,9 +20,16 @@ type NotifyUrlParams struct {
 // NotifyUrl 通知回调地址
 func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param gorequest.Params) error {
 
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, params.NotifyUrl)
+	defer c.TraceEndSpan()
+
 	// 验证回调地址
 	_, err := url.ParseRequestURI(params.NotifyUrl)
 	if err != nil {
+		if c.trace {
+			c.span.SetStatus(codes.Error, err.Error())
+		}
 		return err
 	}
 
@@ -36,25 +44,25 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	// 签名
 	XSign := sign(param, params.ApiKey, XTimestamp)
 
-	// 创建请求
-	client := gorequest.NewHttp()
-
 	// 设置请求地址
-	client.SetUri(params.NotifyUrl)
+	c.httpClient.SetUri(params.NotifyUrl)
 
 	// 设置格式
-	client.SetContentTypeJson()
+	c.httpClient.SetContentTypeJson()
 
 	// 设置参数
-	client.SetParams(param)
+	c.httpClient.SetParams(param)
 
 	// 添加请求头
-	client.SetHeader("X-Timestamp", XTimestamp)
-	client.SetHeader("X-Sign", XSign)
+	c.httpClient.SetHeader("X-Timestamp", XTimestamp)
+	c.httpClient.SetHeader("X-Sign", XSign)
 
 	// 发起请求
-	request, err := client.Post(ctx)
+	request, err := c.httpClient.Post(ctx)
 	if err != nil {
+		if c.trace {
+			c.span.SetStatus(codes.Error, err.Error())
+		}
 		return err
 	}
 
@@ -64,12 +72,10 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	}
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
+		if c.trace {
+			c.span.SetStatus(codes.Error, err.Error())
+		}
 		return err
-	}
-
-	// 日志
-	if c.gormLog.status {
-		go c.gormLog.client.Middleware(ctx, request)
 	}
 
 	if response.Code == CodeSuccess {

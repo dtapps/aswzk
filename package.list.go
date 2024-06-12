@@ -4,6 +4,7 @@ import (
 	"context"
 	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
+	"go.opentelemetry.io/otel/codes"
 	"net/http"
 )
 
@@ -32,15 +33,28 @@ func newPackageListResult(result PackageListResponse, body []byte, http goreques
 // PackageList 套餐列表
 // package_type = 套餐类型 phone_bill=话费 electricity=电费)
 func (c *Client) PackageList(ctx context.Context, notMustParams ...gorequest.Params) (*PackageListResult, error) {
+
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, "package/list")
+	defer c.TraceEndSpan()
+
 	// 参数
 	params := gorequest.NewParamsWith(notMustParams...)
+
 	// 请求
-	request, err := c.request(ctx, "/package/list", params, http.MethodGet)
+	request, err := c.request(ctx, "package/list", params, http.MethodGet)
 	if err != nil {
+		if c.trace {
+			c.span.SetStatus(codes.Error, err.Error())
+		}
 		return newPackageListResult(PackageListResponse{}, request.ResponseBody, request), err
 	}
+
 	// 定义
 	var response PackageListResponse
 	err = gojson.Unmarshal(request.ResponseBody, &response)
+	if err != nil && c.trace {
+		c.span.SetStatus(codes.Error, err.Error())
+	}
 	return newPackageListResult(response, request.ResponseBody, request), err
 }

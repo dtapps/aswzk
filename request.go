@@ -18,37 +18,27 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 	XSign := sign(param, c.GetApiKey(), XTimestamp)
 	log.Printf("签名参数：%+v\n", param)
 
-	// 创建请求
-	client := gorequest.NewHttp()
-	client.SetDebug()
-
 	// 设置请求地址
-	client.SetUri(c.GetApiUrl() + url)
-	log.Printf("请求地址：%+v\n", c.GetApiUrl()+url)
+	c.httpClient.SetUri(c.GetApiUrl() + url)
 
 	// 设置方式
-	client.SetMethod(method)
+	c.httpClient.SetMethod(method)
 
 	// 设置格式
-	client.SetContentTypeJson()
+	c.httpClient.SetContentTypeJson()
 
 	// 设置参数
-	client.SetParams(param)
+	c.httpClient.SetParams(param)
 
 	// 添加请求头
-	client.SetHeader("X-Timestamp", XTimestamp)
-	client.SetHeader("X-UserId", c.GetUserID())
-	client.SetHeader("X-Sign", XSign)
+	c.httpClient.SetHeader("X-Timestamp", XTimestamp)
+	c.httpClient.SetHeader("X-UserId", c.GetUserID())
+	c.httpClient.SetHeader("X-Sign", XSign)
 
 	// 发起请求
-	request, err := client.Request(ctx)
+	request, err := c.httpClient.Request(ctx)
 	if err != nil {
 		return gorequest.Response{}, err
-	}
-
-	// 日志
-	if c.gormLog.status {
-		go c.gormLog.client.Middleware(ctx, request)
 	}
 
 	return request, err
