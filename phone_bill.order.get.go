@@ -51,17 +51,15 @@ func (c *Client) PhoneBillOrderQuery(ctx context.Context, orderID, orderNo strin
 	// 请求
 	request, err := c.request(ctx, "phone_bill/order", params, http.MethodGet)
 	if err != nil {
-		if c.trace {
-			c.span.SetStatus(codes.Error, err.Error())
-		}
+		c.TraceSetStatus(codes.Error, err.Error())
 		return newPhoneBillOrderQueryResult(PhoneBillOrderQueryResponse{}, request.ResponseBody, request), err
 	}
 
 	// 定义
 	var response PhoneBillOrderQueryResponse
 	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil && c.trace {
-		c.span.SetStatus(codes.Error, err.Error())
+	if err != nil {
+		c.TraceSetStatus(codes.Error, err.Error())
 	}
 	return newPhoneBillOrderQueryResult(response, request.ResponseBody, request), err
 }

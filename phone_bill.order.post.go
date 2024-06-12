@@ -39,17 +39,15 @@ func (c *Client) PhoneBillOrder(ctx context.Context, notMustParams ...gorequest.
 	// 请求
 	request, err := c.request(ctx, "phone_bill/order", params, http.MethodPost)
 	if err != nil {
-		if c.trace {
-			c.span.SetStatus(codes.Error, err.Error())
-		}
+		c.TraceSetStatus(codes.Error, err.Error())
 		return newPhoneBillOrderResult(PhoneBillOrderResponse{}, request.ResponseBody, request), err
 	}
 
 	// 定义
 	var response PhoneBillOrderResponse
 	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil && c.trace {
-		c.span.SetStatus(codes.Error, err.Error())
+	if err != nil {
+		c.TraceSetStatus(codes.Error, err.Error())
 	}
 	return newPhoneBillOrderResult(response, request.ResponseBody, request), err
 }

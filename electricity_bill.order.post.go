@@ -39,17 +39,15 @@ func (c *Client) ElectricityBillOrder(ctx context.Context, notMustParams ...gore
 	// 请求
 	request, err := c.request(ctx, "electricity_bill/order", params, http.MethodPost)
 	if err != nil {
-		if c.trace {
-			c.span.SetStatus(codes.Error, err.Error())
-		}
+		c.TraceSetStatus(codes.Error, err.Error())
 		return newElectricityBillOrderResult(ElectricityBillOrderResponse{}, request.ResponseBody, request), err
 	}
 
 	// 定义
 	var response ElectricityBillOrderResponse
 	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil && c.trace {
-		c.span.SetStatus(codes.Error, err.Error())
+	if err != nil {
+		c.TraceSetStatus(codes.Error, err.Error())
 	}
 	return newElectricityBillOrderResult(response, request.ResponseBody, request), err
 }

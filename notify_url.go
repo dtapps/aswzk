@@ -27,9 +27,7 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	// 验证回调地址
 	_, err := url.ParseRequestURI(params.NotifyUrl)
 	if err != nil {
-		if c.trace {
-			c.span.SetStatus(codes.Error, err.Error())
-		}
+		c.TraceSetStatus(codes.Error, err.Error())
 		return err
 	}
 
@@ -60,9 +58,7 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	// 发起请求
 	request, err := c.httpClient.Post(ctx)
 	if err != nil {
-		if c.trace {
-			c.span.SetStatus(codes.Error, err.Error())
-		}
+		c.TraceSetStatus(codes.Error, err.Error())
 		return err
 	}
 
@@ -72,9 +68,7 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	}
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
-		if c.trace {
-			c.span.SetStatus(codes.Error, err.Error())
-		}
+		c.TraceSetStatus(codes.Error, err.Error())
 		return err
 	}
 

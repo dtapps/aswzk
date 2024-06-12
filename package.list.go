@@ -44,17 +44,15 @@ func (c *Client) PackageList(ctx context.Context, notMustParams ...gorequest.Par
 	// 请求
 	request, err := c.request(ctx, "package/list", params, http.MethodGet)
 	if err != nil {
-		if c.trace {
-			c.span.SetStatus(codes.Error, err.Error())
-		}
+		c.TraceSetStatus(codes.Error, err.Error())
 		return newPackageListResult(PackageListResponse{}, request.ResponseBody, request), err
 	}
 
 	// 定义
 	var response PackageListResponse
 	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil && c.trace {
-		c.span.SetStatus(codes.Error, err.Error())
+	if err != nil {
+		c.TraceSetStatus(codes.Error, err.Error())
 	}
 	return newPackageListResult(response, request.ResponseBody, request), err
 }
