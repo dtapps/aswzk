@@ -52,6 +52,7 @@ func (c *Client) PhoneBillOrderQuery(ctx context.Context, orderID, orderNo strin
 	request, err := c.request(ctx, "phone_bill/order", params, http.MethodGet)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return newPhoneBillOrderQueryResult(PhoneBillOrderQueryResponse{}, request.ResponseBody, request), err
 	}
 
@@ -60,6 +61,7 @@ func (c *Client) PhoneBillOrderQuery(ctx context.Context, orderID, orderNo strin
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 	}
 	return newPhoneBillOrderQueryResult(response, request.ResponseBody, request), err
 }

@@ -45,6 +45,7 @@ func (c *Client) PackageList(ctx context.Context, notMustParams ...gorequest.Par
 	request, err := c.request(ctx, "package/list", params, http.MethodGet)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return newPackageListResult(PackageListResponse{}, request.ResponseBody, request), err
 	}
 
@@ -53,6 +54,7 @@ func (c *Client) PackageList(ctx context.Context, notMustParams ...gorequest.Par
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 	}
 	return newPackageListResult(response, request.ResponseBody, request), err
 }

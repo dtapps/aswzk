@@ -28,11 +28,14 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	_, err := url.ParseRequestURI(params.NotifyUrl)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return err
 	}
 
 	// 检查密钥
 	if params.ApiKey == "" {
+		c.TraceSetStatus(codes.Error, "api_key cannot be empty")
+		c.TraceRecordError(errors.New("api_key cannot be empty"))
 		return errors.New("api_key cannot be empty")
 	}
 
@@ -59,6 +62,7 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	request, err := c.httpClient.Post(ctx)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return err
 	}
 
@@ -69,6 +73,7 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return err
 	}
 

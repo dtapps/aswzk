@@ -3,8 +3,10 @@ package aswzk
 import (
 	"context"
 	"fmt"
+	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
 	"go.dtapp.net/gotime"
+	"go.opentelemetry.io/otel/attribute"
 	"log"
 )
 
@@ -34,6 +36,11 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 	c.httpClient.SetHeader("X-Timestamp", XTimestamp)
 	c.httpClient.SetHeader("X-UserId", c.GetUserID())
 	c.httpClient.SetHeader("X-Sign", XSign)
+
+	// OpenTelemetry链路追踪
+	c.TraceSetAttributes(attribute.String("http.url", c.GetApiUrl()+url))
+	c.TraceSetAttributes(attribute.String("http.method", method))
+	c.TraceSetAttributes(attribute.String("http.params", gojson.JsonEncodeNoError(param)))
 
 	// 发起请求
 	request, err := c.httpClient.Request(ctx)

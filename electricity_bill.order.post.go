@@ -40,6 +40,7 @@ func (c *Client) ElectricityBillOrder(ctx context.Context, notMustParams ...gore
 	request, err := c.request(ctx, "electricity_bill/order", params, http.MethodPost)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return newElectricityBillOrderResult(ElectricityBillOrderResponse{}, request.ResponseBody, request), err
 	}
 
@@ -48,6 +49,7 @@ func (c *Client) ElectricityBillOrder(ctx context.Context, notMustParams ...gore
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 	}
 	return newElectricityBillOrderResult(response, request.ResponseBody, request), err
 }

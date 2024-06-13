@@ -42,6 +42,7 @@ func (c *Client) AssetsBalance(ctx context.Context, notMustParams ...gorequest.P
 	request, err := c.request(ctx, "assets/balance", params, http.MethodGet)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return newAssetsBalanceResult(AssetsBalanceResponse{}, request.ResponseBody, request), err
 	}
 
@@ -50,6 +51,7 @@ func (c *Client) AssetsBalance(ctx context.Context, notMustParams ...gorequest.P
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 	}
 	return newAssetsBalanceResult(response, request.ResponseBody, request), err
 }

@@ -40,6 +40,7 @@ func (c *Client) PhoneBillOrder(ctx context.Context, notMustParams ...gorequest.
 	request, err := c.request(ctx, "phone_bill/order", params, http.MethodPost)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 		return newPhoneBillOrderResult(PhoneBillOrderResponse{}, request.ResponseBody, request), err
 	}
 
@@ -48,6 +49,7 @@ func (c *Client) PhoneBillOrder(ctx context.Context, notMustParams ...gorequest.
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
 		c.TraceSetStatus(codes.Error, err.Error())
+		c.TraceRecordError(err)
 	}
 	return newPhoneBillOrderResult(response, request.ResponseBody, request), err
 }
