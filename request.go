@@ -7,21 +7,23 @@ import (
 	"go.dtapp.net/gorequest"
 	"go.dtapp.net/gotime"
 	"go.opentelemetry.io/otel/attribute"
-	"log"
+	"go.opentelemetry.io/otel/codes"
 )
 
 // 请求接口
-func (c *Client) request(ctx context.Context, url string, param gorequest.Params, method string) (gorequest.Response, error) {
+func (c *Client) request(ctx context.Context, url string, param gorequest.Params, method string, response any) (gorequest.Response, error) {
+
+	// 请求地址
+	uri := c.GetApiUrl() + url
 
 	// 获取时间戳
-	XTimestamp := fmt.Sprintf("%v", gotime.Current().Timestamp())
+	xTimestamp := fmt.Sprintf("%v", gotime.Current().Timestamp())
 
 	// 签名
-	XSign := sign(param, c.GetApiKey(), XTimestamp)
-	log.Printf("签名参数：%+v\n", param)
+	xSign := sign(param, c.GetApiKey(), xTimestamp)
 
 	// 设置请求地址
-	c.httpClient.SetUri(c.GetApiUrl() + url)
+	c.httpClient.SetUri(uri)
 
 	// 设置方式
 	c.httpClient.SetMethod(method)
@@ -33,19 +35,27 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 	c.httpClient.SetParams(param)
 
 	// 添加请求头
-	c.httpClient.SetHeader("X-Timestamp", XTimestamp)
+	c.httpClient.SetHeader("X-Timestamp", xTimestamp)
 	c.httpClient.SetHeader("X-UserId", c.GetUserID())
-	c.httpClient.SetHeader("X-Sign", XSign)
+	c.httpClient.SetHeader("X-Sign", xSign)
 
 	// OpenTelemetry链路追踪
-	c.TraceSetAttributes(attribute.String("http.url", c.GetApiUrl()+url))
+	c.TraceSetAttributes(attribute.String("http.url", uri))
 	c.TraceSetAttributes(attribute.String("http.method", method))
 	c.TraceSetAttributes(attribute.String("http.params", gojson.JsonEncodeNoError(param)))
 
 	// 发起请求
 	request, err := c.httpClient.Request(ctx)
 	if err != nil {
+		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
 		return gorequest.Response{}, err
+	}
+
+	err = gojson.Unmarshal(request.ResponseBody, &response)
+	if err != nil {
+		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
 	}
 
 	return request, err

@@ -2,9 +2,7 @@ package aswzk
 
 import (
 	"context"
-	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
-	"go.opentelemetry.io/otel/codes"
 	"net/http"
 )
 
@@ -39,19 +37,7 @@ func (c *Client) AssetsBalance(ctx context.Context, notMustParams ...gorequest.P
 	params := gorequest.NewParamsWith(notMustParams...)
 
 	// 请求
-	request, err := c.request(ctx, "assets/balance", params, http.MethodGet)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-		return newAssetsBalanceResult(AssetsBalanceResponse{}, request.ResponseBody, request), err
-	}
-
-	// 定义
 	var response AssetsBalanceResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-	}
+	request, err := c.request(ctx, "assets/balance", params, http.MethodGet, &response)
 	return newAssetsBalanceResult(response, request.ResponseBody, request), err
 }

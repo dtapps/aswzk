@@ -2,9 +2,7 @@ package aswzk
 
 import (
 	"context"
-	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
-	"go.opentelemetry.io/otel/codes"
 	"net/http"
 )
 
@@ -42,19 +40,7 @@ func (c *Client) PackageList(ctx context.Context, notMustParams ...gorequest.Par
 	params := gorequest.NewParamsWith(notMustParams...)
 
 	// 请求
-	request, err := c.request(ctx, "package/list", params, http.MethodGet)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-		return newPackageListResult(PackageListResponse{}, request.ResponseBody, request), err
-	}
-
-	// 定义
 	var response PackageListResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-	}
+	request, err := c.request(ctx, "package/list", params, http.MethodGet, &response)
 	return newPackageListResult(response, request.ResponseBody, request), err
 }

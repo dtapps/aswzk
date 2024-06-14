@@ -4,14 +4,35 @@ import (
 	"go.dtapp.net/gorequest"
 )
 
-func (c *Client) SetApiKey(apiKey string) *Client {
-	c.config.apiKey = apiKey
+func (c *Client) GetApiUrl() string {
+	return c.config.apiUrl
+}
+
+func (c *Client) SetApiUrl(v string) *Client {
+	c.config.apiUrl = v
+	return c
+}
+
+func (c *Client) GetUserID() string {
+	return c.config.userID
+}
+
+func (c *Client) SetUserID(v string) *Client {
+	c.config.userID = v
+	return c
+}
+func (c *Client) GetApiKey() string {
+	return c.config.apiKey
+}
+
+func (c *Client) SetApiKey(v string) *Client {
+	c.config.apiKey = v
 	return c
 }
 
 // SetClientIP 配置
 func (c *Client) SetClientIP(clientIP string) *Client {
-	c.config.clientIP = clientIP
+	c.clientIP = clientIP
 	if c.httpClient != nil {
 		c.httpClient.SetClientIP(clientIP)
 	}

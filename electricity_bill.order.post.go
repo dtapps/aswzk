@@ -2,9 +2,7 @@ package aswzk
 
 import (
 	"context"
-	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
-	"go.opentelemetry.io/otel/codes"
 	"net/http"
 )
 
@@ -37,19 +35,7 @@ func (c *Client) ElectricityBillOrder(ctx context.Context, notMustParams ...gore
 	params := gorequest.NewParamsWith(notMustParams...)
 
 	// 请求
-	request, err := c.request(ctx, "electricity_bill/order", params, http.MethodPost)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-		return newElectricityBillOrderResult(ElectricityBillOrderResponse{}, request.ResponseBody, request), err
-	}
-
-	// 定义
 	var response ElectricityBillOrderResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-	}
+	request, err := c.request(ctx, "electricity_bill/order", params, http.MethodPost, &response)
 	return newElectricityBillOrderResult(response, request.ResponseBody, request), err
 }

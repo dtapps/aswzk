@@ -2,9 +2,7 @@ package aswzk
 
 import (
 	"context"
-	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
-	"go.opentelemetry.io/otel/codes"
 	"net/http"
 )
 
@@ -49,19 +47,7 @@ func (c *Client) PhoneBillOrderQuery(ctx context.Context, orderID, orderNo strin
 	params.Set("order_no", orderNo) // 商户订单编号
 
 	// 请求
-	request, err := c.request(ctx, "phone_bill/order", params, http.MethodGet)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-		return newPhoneBillOrderQueryResult(PhoneBillOrderQueryResponse{}, request.ResponseBody, request), err
-	}
-
-	// 定义
 	var response PhoneBillOrderQueryResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
-		c.TraceRecordError(err)
-	}
+	request, err := c.request(ctx, "phone_bill/order", params, http.MethodGet, &response)
 	return newPhoneBillOrderQueryResult(response, request.ResponseBody, request), err
 }

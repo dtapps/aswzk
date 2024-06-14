@@ -27,23 +27,23 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	// 验证回调地址
 	_, err := url.ParseRequestURI(params.NotifyUrl)
 	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
 		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
 		return err
 	}
 
 	// 检查密钥
 	if params.ApiKey == "" {
-		c.TraceSetStatus(codes.Error, "api_key cannot be empty")
 		c.TraceRecordError(errors.New("api_key cannot be empty"))
+		c.TraceSetStatus(codes.Error, "api_key cannot be empty")
 		return errors.New("api_key cannot be empty")
 	}
 
 	// 获取时间戳
-	XTimestamp := fmt.Sprintf("%v", gotime.Current().Timestamp())
+	xTimestamp := fmt.Sprintf("%v", gotime.Current().Timestamp())
 
 	// 签名
-	XSign := sign(param, params.ApiKey, XTimestamp)
+	xSign := sign(param, params.ApiKey, xTimestamp)
 
 	// 设置请求地址
 	c.httpClient.SetUri(params.NotifyUrl)
@@ -55,14 +55,14 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	c.httpClient.SetParams(param)
 
 	// 添加请求头
-	c.httpClient.SetHeader("X-Timestamp", XTimestamp)
-	c.httpClient.SetHeader("X-Sign", XSign)
+	c.httpClient.SetHeader("X-Timestamp", xTimestamp)
+	c.httpClient.SetHeader("X-Sign", xSign)
 
 	// 发起请求
 	request, err := c.httpClient.Post(ctx)
 	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
 		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
 		return err
 	}
 
@@ -72,8 +72,8 @@ func (c *Client) NotifyUrl(ctx context.Context, params NotifyUrlParams, param go
 	}
 	err = gojson.Unmarshal(request.ResponseBody, &response)
 	if err != nil {
-		c.TraceSetStatus(codes.Error, err.Error())
 		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
 		return err
 	}
 
